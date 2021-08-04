@@ -3,12 +3,15 @@ import Image from 'next/image';
 import styles from '@/styles/event-item.module.css';
 
 export default function EventItem({ event }) {
+  // TODO test using an event without image
   return (
     <div className={styles.event}>
       <div className={styles.img}>
         <Image
           alt='Event Image'
-          src={event.image ?? '/images/event-default.png'}
+          src={
+            event.image?.formats?.thumbnail?.url ?? '/images/event-default.png'
+          }
           width={170}
           height={100}
         />
@@ -16,7 +19,7 @@ export default function EventItem({ event }) {
 
       <div className={styles.info}>
         <span>
-          {event.date} at {event.time}
+          {new Date(event.date).toLocaleDateString('pt-BR')} at {event.time}
         </span>
         <h3>{event.name}</h3>
       </div>
