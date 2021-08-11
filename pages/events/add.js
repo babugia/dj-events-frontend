@@ -20,7 +20,7 @@ export default function AddEventPage() {
 
   const router = useRouter();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Validation
@@ -29,7 +29,22 @@ export default function AddEventPage() {
     );
 
     if (hasEmptyFields) {
-      toast.error('Please fill in all fields');
+      return toast.error('Please fill in all fields');
+    }
+
+    const res = await fetch(`${API_URL}/events`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(values),
+    });
+
+    if (!res.ok) {
+      return toast.error('Something went wrong');
+    } else {
+      const evt = await res.json();
+      router.push(`/events/${evt.slug}`);
     }
   };
 
