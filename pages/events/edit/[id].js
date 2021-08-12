@@ -6,6 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import Link from 'next/link';
+import ImageUpload from '@/components/image-upload';
 import Modal from '@/components/modal';
 import Layout from '@/components/layout';
 import { API_URL } from '@/config/index';
@@ -61,6 +62,13 @@ export default function EditEventPage({ event }) {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setValues({ ...values, [name]: value });
+  };
+
+  const imageUploaded = async () => {
+    const res = await fetch(`${API_URL}/events/${event.id}`);
+    const data = await res.json();
+    setImagePreview(data.image.formats.thumbnail.url);
+    setShowModal(false);
   };
 
   // TODO use formik or react-hook-form to practice
@@ -164,7 +172,7 @@ export default function EditEventPage({ event }) {
       </div>
 
       <Modal show={showModal} onClose={() => setShowModal(false)}>
-        Image Upload
+        <ImageUpload eventId={event.id} imageUploaded={imageUploaded} />
       </Modal>
     </Layout>
   );
