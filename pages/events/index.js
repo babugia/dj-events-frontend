@@ -2,6 +2,8 @@ import Layout from '@/components/layout';
 import EventItem from '@/components/event-item';
 import { API_URL } from '@/config/index';
 
+const PER_PAGE = 2;
+
 export default function EventsPage({ events }) {
   return (
     <Layout>
@@ -15,14 +17,19 @@ export default function EventsPage({ events }) {
   );
 }
 
-export async function getStaticProps() {
-  const res = await fetch(`${API_URL}/events?_sort=date:ASC`);
+export async function getServerSideProps({ query: { page = 1 } }) {
+  // calculate start page
+  const normalizedPage = Number(page);
+  const start = normalizedPage === 1 ? 0 : (normalizedPage - 1) * PER_PAGE;
+
+  const res = await fetch(
+    `${API_URL}/events?_sort=date:ASC&_limit=${PER_PAGE}&_start=${start}`
+  );
   const events = await res.json();
 
   return {
     props: {
       events,
-      revalidate: 1,
     },
   };
 }
