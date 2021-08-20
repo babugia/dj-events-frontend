@@ -9,10 +9,11 @@ import Link from 'next/link';
 import ImageUpload from '@/components/image-upload';
 import Modal from '@/components/modal';
 import Layout from '@/components/layout';
+import { parseCookies } from '@/helpers/index';
 import { API_URL } from '@/config/index';
 import styles from '@/styles/form.module.css';
 
-export default function EditEventPage({ event }) {
+export default function EditEventPage({ event, token }) {
   const [values, setValues] = useState({
     name: event.name,
     performers: event.performers,
@@ -47,11 +48,16 @@ export default function EditEventPage({ event }) {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(values),
     });
 
     if (!res.ok) {
+      if (res.status === 401 || res.status === 403) {
+        return toast.error('No token included');
+      }
+
       return toast.error('Something went wrong');
     }
 
@@ -126,7 +132,7 @@ export default function EditEventPage({ event }) {
               type='date'
               name='date'
               id='date'
-              value={moment(values.date).format('DD-MM-yyyy')}
+              value={moment(values.date).format('yyyy-MM-DD')}
               onChange={handleInputChange}
             />
           </div>
@@ -172,7 +178,11 @@ export default function EditEventPage({ event }) {
       </div>
 
       <Modal show={showModal} onClose={() => setShowModal(false)}>
-        <ImageUpload eventId={event.id} imageUploaded={imageUploaded} />
+        <ImageUpload
+          eventId={event.id}
+          token={token}
+          imageUploaded={imageUploaded}
+        />
       </Modal>
     </Layout>
   );
@@ -181,12 +191,14 @@ export default function EditEventPage({ event }) {
 export async function getServerSideProps({ params: { id }, req }) {
   const res = await fetch(`${API_URL}/events/${id}`);
   const event = await res.json();
+  const { token } = parseCookies(req);
 
   console.log(req.headers.cookie);
 
   return {
     props: {
       event,
+      token,
     },
   };
 }
