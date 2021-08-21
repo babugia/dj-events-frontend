@@ -40,6 +40,18 @@ export default function EventPage({ event }) {
   );
 }
 
+export async function getServerSideProps({ query: { slug } }) {
+  const res = await fetch(`${API_URL}/events?slug=${slug}`);
+  const events = await res.json();
+
+  return {
+    props: {
+      event: events[0],
+    },
+  };
+}
+
+/*
 export async function getStaticPaths() {
   const res = await fetch(`${API_URL}/events`);
   const events = await res.json();
@@ -62,3 +74,4 @@ export async function getStaticProps({ params: { slug } }) {
     revalidate: 1, // https://nextjs.org/docs/basic-features/data-fetching#incremental-static-regeneration
   };
 }
+*/
